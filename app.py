@@ -112,7 +112,7 @@ def create_hit():
     :return:
     flask.Response() object
     """
-    if data_provided(request.json) is None:
+    if title_and_artist_id_provided(request.json) is None:
         return wrong_data("please provide json data with (title) and (artist_id)")
 
     if title_is_not_empty_string(request.json) is None:
@@ -157,7 +157,7 @@ def update_hit(title_url):
 
     # validation
     if not request.json:
-        return wrong_data("Nothing to update")
+        return wrong_data("You didn't send anything to update")
     if (
         "title" in request.json
         and type(request.json["title"]) != str
@@ -221,7 +221,7 @@ def urlify(s):
     return s
 
 
-def data_provided(request_json):
+def title_and_artist_id_provided(request_json):
     if request_json and "title" in request_json and "artist_id" in request_json:
         return True
 
