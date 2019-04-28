@@ -7,7 +7,7 @@ from app import (
     title_is_not_empty_string,
     title_and_artist_id_provided,
     artist_id_is_int,
-    urlify
+    urlify,
 )
 
 
@@ -48,12 +48,13 @@ class TestEskaApp(TestCase):
             b'{"error":"please provide json data with (title) and (artist_id)"}\n',
         )
 
-    @patch('app.title_and_artist_id_provided', return_value=True)
-    @patch('app.title_is_not_empty_string', return_value=None)
+    @patch("app.title_and_artist_id_provided", return_value=True)
+    @patch("app.title_is_not_empty_string", return_value=None)
     def test_create_hit_data(self, mock_1, mock_2):
         result = self.app.post("/api/v1/hits")
-        self.assertEqual(result.data, b'{"error":"title must be a non empty string string"}\n')
-
+        self.assertEqual(
+            result.data, b'{"error":"title must be a non empty string string"}\n'
+        )
 
     def test_update_hit_with_no_data(self):
         result = self.app.put("/api/v1/hits/Betonowy-Las")
@@ -79,7 +80,3 @@ class TestEskaApp(TestCase):
     def test_urlify(self):
         result = urlify("test")
         self.assertEqual(result, "test")
-
-
-
-

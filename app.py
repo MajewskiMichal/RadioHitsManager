@@ -88,19 +88,17 @@ def get_hit(title_url):
         hit = Hits.query.get(query_hit[0].id)
     except IndexError:
         return not_found("This title doesn't exist")
-
-    # get artist by quering his id taken from hit ForeignKey value
-    artist = Artists.query.get(hit.artist_id)
-    # serializing hit
+    # get arists data
+    artist = {
+        "id": hit.artists.id,
+        "first_name": hit.artists.first_name,
+        "last_name": hit.artists.last_name,
+    }
     hit_data = hit_schema.dump(hit)
-    print(hit_data)
-    # creating flask.Response() object
-    artist_data = artist_schema.jsonify(artist)
-    # print(hit_data.data)
-    # print(artist_data)
-    # result = {'obj1': json.loads(artist), 'obj2': jsonify(hit.data) }
+
+    result = {"hit": hit_data.data, "artist": artist}
     # returning flask.Response() object
-    return jsonify(hit_data.data)  # artist_data
+    return jsonify(result)  # artist_data
 
 
 @app.route("/api/v1/hits", methods=["POST"])
