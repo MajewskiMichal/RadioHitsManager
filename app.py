@@ -93,10 +93,11 @@ def get_hit(title_url):
     artist = Artists.query.get(hit.artist_id)
     # serializing hit
     hit_data = hit_schema.dump(hit)
+    print(hit_data)
     # creating flask.Response() object
     artist_data = artist_schema.jsonify(artist)
-    print(hit_data.data)
-    print(artist_data)
+    # print(hit_data.data)
+    # print(artist_data)
     # result = {'obj1': json.loads(artist), 'obj2': jsonify(hit.data) }
     # returning flask.Response() object
     return jsonify(hit_data.data)  # artist_data
@@ -138,7 +139,8 @@ def create_hit():
 @app.route("/api/v1/hits/<title_url>", methods=["PUT"])
 def update_hit(title_url):
     """
-        Receives JSON format data which can contains fields like hit title and artist_id. Querying db for hit to update.
+        Receives JSON format data which can contains fields like hit title and artist_id.
+        Querying db for hit to update.
         Validates data.
         Updating data into db.
 
