@@ -93,10 +93,11 @@ def get_hit(title_url):
     artist = Artists.query.get(hit.artist_id)
     # serializing hit
     hit_data = hit_schema.dump(hit)
+    print(hit_data)
     # creating flask.Response() object
     artist_data = artist_schema.jsonify(artist)
-    print(hit_data.data)
-    print(artist_data)
+    # print(hit_data.data)
+    # print(artist_data)
     # result = {'obj1': json.loads(artist), 'obj2': jsonify(hit.data) }
     # returning flask.Response() object
     return jsonify(hit_data.data)  # artist_data
@@ -111,7 +112,7 @@ def create_hit():
     :return:
     flask.Response() object
     """
-    if data_provided(request.json) is None:
+    if title_and_artist_id_provided(request.json) is None:
         return wrong_data("please provide json data with (title) and (artist_id)")
 
     if title_is_not_empty_string(request.json) is None:
@@ -138,7 +139,8 @@ def create_hit():
 @app.route("/api/v1/hits/<title_url>", methods=["PUT"])
 def update_hit(title_url):
     """
-        Receives JSON format data which can contains fields like hit title and artist_id. Querying db for hit to update.
+        Receives JSON format data which can contains fields like hit title and artist_id.
+        Querying db for hit to update.
         Validates data.
         Updating data into db.
 
@@ -155,7 +157,7 @@ def update_hit(title_url):
 
     # validation
     if not request.json:
-        return wrong_data("Nothing to update")
+        return wrong_data("You didn't send anything to update")
     if (
         "title" in request.json
         and type(request.json["title"]) != str
@@ -219,7 +221,7 @@ def urlify(s):
     return s
 
 
-def data_provided(request_json):
+def title_and_artist_id_provided(request_json):
     if request_json and "title" in request_json and "artist_id" in request_json:
         return True
 
