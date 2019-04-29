@@ -75,7 +75,7 @@ class TestEskaApp(TestCase):
         result = self.app.put("/api/v1/hits/Existing-Title")
         self.assertEqual(
 
-            result.data, b'{"error":"You didn\'t send anything to update"}\n'
+            result.data, b'{"error":"JSON has an error"}\n'
         )
         self.assertEqual(result.status_code, 400)
 
@@ -83,9 +83,9 @@ class TestEskaApp(TestCase):
         result = self.app.put("/api/v1/hits/Not-Existing-Title")
         self.assertEqual(
 
-            result.data, b'{"error":"This title doesn\'t exist"}\n'
+            result.data, b'{"error":"JSON has an error"}\n'
         )
-        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.status_code, 400)
 
     def test_update_bad_title(self):
         result = self.app.put("/api/v1/hits/Existing-Title",
@@ -94,10 +94,41 @@ class TestEskaApp(TestCase):
                                       b' containing only letters ans spaces"}\n')
         self.assertEqual(result.status_code, 400)
 
-    def test_update_bad_artist_id(self):
+    def test_update_hit_bad_artist_id(self):
         result = self.app.put("/api/v1/hits/Existing-Title",
                               json={"artist_id": ""})
-        self.assertEqual(result.data, "af")
+        self.assertEqual(result.data, b'{"error":"artist_id must be an integer"}\n')
+        self.assertEqual(result.status_code, 400)
+
+    def test_update_hit_no_title_in_db(self):
+        result = self.app.put("/api/v1/hits/Not-Existing-Title",
+                              json={"artist_id": 12})
+        self.assertEqual(result.data, b'{"error":"This title doesn\'t exist"}\n')
+        self.assertEqual(result.status_code, 404)
+
+    @patch("app.validate_title", return_value=True)
+    @patch("app.artist_id_is_int", return_value=True)
+    def test_update_hit_success(self, mock_1, mcok_2):
+        # create record to check update
+        self.app.post("/api/v1/hits", json={'title': 'Title-to-update-which-exists',
+                                            'artist_id': 88})
+        result = self.app.put("/api/v1/hits/Title-to-update-which-exists",
+                              json={'title': 'New Title'})
+        print("result_data_for_update", result.data)
+        self.assertEqual(
+            json.loads(result.data.decode('utf-8'))['title'], "New Title")
+        self.assertEqual(result.status_code, 201)
+
+
+    def test_delete_hit(self):
+        # self.app.post("/api/v1/hits", json={'title': 'Title-to-delete',
+        #                                    'artist_id': 77})
+        result = self.app.delete('/api/v1/hits/Not-existing-title')
+        print('del_result_data', result.data)
+        self.assertEqual(
+            result.data, b'{"error":"This title doesn\'t exist"}\n')
+        self.assertEqual(result.status_code, 404)
+
 
     def title_and_artist_id_provided(self):
         request_json = {"title": "test_title", "artist_id": 1}

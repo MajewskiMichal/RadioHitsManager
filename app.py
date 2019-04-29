@@ -120,7 +120,6 @@ def create_hit():
 
     if title_and_artist_id_provided(request.json) is None:
         return wrong_data("please provide json data with (title) and (artist_id)")
-    print(title_and_artist_id_provided(request.json))
     if validate_title(request.json) is None:
         return wrong_data("title must be a non empty string containing only"
                           " letters ans spaces")
@@ -153,6 +152,8 @@ def update_hit(title_url):
         :return:
         flask.Response() object
         """
+    if validate_json() == "Bad JSON":
+        return wrong_data("JSON has an error")
     # get hit filtered by the title_url
     query_hit = Hits.query.filter_by(title_url=title_url)
     # get hit filtered by the title_url
@@ -162,24 +163,23 @@ def update_hit(title_url):
         return not_found("This title doesn't exist")
 
     # validation
-    print(request.json)
     if not request.json:
         return wrong_data("You didn't send anything to update")
     if 'title' in request.json and validate_title(request.json) is None:
         return wrong_data("title must be a non empty string containing only"
                           " letters ans spaces")
-    if "artist_id" in request.json and artist_id_is_int is None:
+    if "artist_id" in request.json and artist_id_is_int(request.json) is None:
         return wrong_data("artist_id must be an integer")
 
     # saving data to db
     hit.title = request.json.get("title", hit.title)
-    hit.artist_id = request.json.get("artistId", hit.artist_id)
+    hit.artist_id = request.json.get("artist_id", hit.artist_id)
     hit.title_url = urlify(hit.title)
     hit.updated_at = get_timestamp()
 
     db.session.commit()
 
-    return hit_schema.jsonify(hit)
+    return hit_schema.jsonify(hit), 201
 
 
 @app.route("/api/v1/hits/<title_url>", methods=["DELETE"])
@@ -230,6 +230,7 @@ def validate_json():
         json.loads(request.data)
     except json.decoder.JSONDecodeError:
         return "Bad JSON"
+
 
 # check if title and aritst_id in request.json
 def title_and_artist_id_provided(request_json):
