@@ -1,10 +1,10 @@
 from flask import Flask, jsonify, make_response, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-import json
 import os
 from datetime import datetime, timedelta
 import re
+import json
 
 # Init app
 app = Flask(__name__)
@@ -80,6 +80,7 @@ def get_hits():
 # get hit details
 @app.route("/api/v1/hits/<title_url>", methods=["GET"])
 def get_hit(title_url):
+
     # get hit query object filtered by the title_url
 
     query_hit = Hits.query.filter_by(title_url=title_url)
@@ -88,12 +89,16 @@ def get_hit(title_url):
         hit = Hits.query.get(query_hit[0].id)
     except IndexError:
         return not_found("This title doesn't exist")
-    # get arists data
-    artist = {
-        "id": hit.artists.id,
-        "first_name": hit.artists.first_name,
-        "last_name": hit.artists.last_name,
-    }
+    # get arists data if exists
+    if hit.artists is not None:
+        artist = {
+            "id": hit.artists.id,
+            "first_name": hit.artists.first_name,
+            "last_name": hit.artists.last_name,
+        }
+    else:
+        artist = "Not in db"
+
     hit_data = hit_schema.dump(hit)
 
     result = {"hit": hit_data.data, "artist": artist}
@@ -110,12 +115,15 @@ def create_hit():
     :return:
     flask.Response() object
     """
+    if validate_json() == "Bad JSON":
+        return wrong_data("JSON has an error")
+
     if title_and_artist_id_provided(request.json) is None:
         return wrong_data("please provide json data with (title) and (artist_id)")
-
-    if title_is_not_empty_string(request.json) is None:
-        return wrong_data("title must be a non empty string string")
-
+    print(title_and_artist_id_provided(request.json))
+    if validate_title(request.json) is None:
+        return wrong_data("title must be a non empty string containing only"
+                          " letters ans spaces")
     if artist_id_is_int(request.json) is None:
         return wrong_data("artist_id must be an integer")
 
@@ -154,15 +162,13 @@ def update_hit(title_url):
         return not_found("This title doesn't exist")
 
     # validation
+    print(request.json)
     if not request.json:
         return wrong_data("You didn't send anything to update")
-    if (
-        "title" in request.json
-        and type(request.json["title"]) != str
-        or len(request.json["title"]) < 1
-    ):
-        return wrong_data("title must be a non empty string string")
-    if "artistId" in request.json and type(request.json["artistId"]) != int:
+    if 'title' in request.json and validate_title(request.json) is None:
+        return wrong_data("title must be a non empty string containing only"
+                          " letters ans spaces")
+    if "artist_id" in request.json and artist_id_is_int is None:
         return wrong_data("artist_id must be an integer")
 
     # saving data to db
@@ -219,16 +225,27 @@ def urlify(s):
     return s
 
 
+def validate_json():
+    try:
+        json.loads(request.data)
+    except json.decoder.JSONDecodeError:
+        return "Bad JSON"
+
+# check if title and aritst_id in request.json
 def title_and_artist_id_provided(request_json):
     if request_json and "title" in request_json and "artist_id" in request_json:
         return True
 
 
-def title_is_not_empty_string(request_json):
-    if isinstance(request_json["title"], str) and len(request_json["title"]) > 0:
-        return True
+# check if title contains only alpha or space characters and is not empty
+def validate_title(request_json):
+    if isinstance(request_json["title"], str) and \
+            any(x.isalpha() for x in request_json['title']) and \
+            all(x.isalpha() or x.isspace() for x in request_json["title"]):
+            return True
 
 
+# validate artist_id
 def artist_id_is_int(request_json):
     if isinstance(request_json["artist_id"], int):
         return True
