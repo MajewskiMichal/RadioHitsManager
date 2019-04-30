@@ -109,7 +109,8 @@ def get_hit(title_url):
 @app.route("/api/v1/hits", methods=["POST"])
 def create_hit():
     """
-    Receives JSON format data containing hit title and artist_id. Validates data.
+    Receives JSON format data containing hit title and artist_id.
+    Validates data.
     Inserts data into db.
 
     :return:
@@ -121,8 +122,9 @@ def create_hit():
     if title_and_artist_id_provided(request.json) is None:
         return wrong_data("please provide json data with (title) and (artist_id)")
     if validate_title(request.json) is None:
-        return wrong_data("title must be a non empty string containing only"
-                          " letters ans spaces")
+        return wrong_data(
+            "title must be a non empty string containing only" " letters ans spaces"
+        )
     if artist_id_is_int(request.json) is None:
         return wrong_data("artist_id must be an integer")
 
@@ -144,7 +146,8 @@ def create_hit():
 @app.route("/api/v1/hits/<title_url>", methods=["PUT"])
 def update_hit(title_url):
     """
-        Receives JSON format data which can contains fields like hit title and artist_id.
+        Receives JSON format data which can contains
+        fields like hit title and artist_id.
         Querying db for hit to update.
         Validates data.
         Updating data into db.
@@ -165,9 +168,10 @@ def update_hit(title_url):
     # validation
     if not request.json:
         return wrong_data("You didn't send anything to update")
-    if 'title' in request.json and validate_title(request.json) is None:
-        return wrong_data("title must be a non empty string containing only"
-                          " letters ans spaces")
+    if "title" in request.json and validate_title(request.json) is None:
+        return wrong_data(
+            "title must be a non empty string containing only" " letters ans spaces"
+        )
     if "artist_id" in request.json and artist_id_is_int(request.json) is None:
         return wrong_data("artist_id must be an integer")
 
@@ -240,10 +244,12 @@ def title_and_artist_id_provided(request_json):
 
 # check if title contains only alpha or space characters and is not empty
 def validate_title(request_json):
-    if isinstance(request_json["title"], str) and \
-            any(x.isalpha() for x in request_json['title']) and \
-            all(x.isalpha() or x.isspace() for x in request_json["title"]):
-            return True
+    if (
+        isinstance(request_json["title"], str)
+        and any(x.isalpha() for x in request_json["title"])
+        and all(x.isalpha() or x.isspace() for x in request_json["title"])
+    ):
+        return True
 
 
 # validate artist_id
@@ -254,4 +260,4 @@ def artist_id_is_int(request_json):
 
 # Run server
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)

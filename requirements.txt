@@ -6,12 +6,14 @@ attrs==19.1.0
 backcall==0.1.0
 black==19.3b0
 Click==7.0
+coverage==4.5.3
 decorator==4.4.0
 Faker==1.0.5
 Flask==1.0.2
 flask-marshmallow==0.10.0
 Flask-Migrate==2.4.0
 Flask-SQLAlchemy==2.4.0
+Flask-Testing==0.7.1
 ipython==7.5.0
 ipython-genutils==0.2.0
 itsdangerous==1.1.0
@@ -34,6 +36,7 @@ py==1.8.0
 pydbgen==1.0.5
 Pygments==2.3.1
 pytest==4.4.1
+pytest-cov==2.6.1
 python-dateutil==2.8.0
 python-editor==1.0.4
 pytz==2019.1
