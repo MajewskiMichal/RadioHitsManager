@@ -159,8 +159,8 @@ Example Responses:-
 
 On Success: status: 202
 
-
-```{
+```
+{
     "id": 46,
     "title": "Some Title",
     "title_url": "Some-Title"
