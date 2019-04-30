@@ -66,9 +66,9 @@ On Success: status: 200
 On error: status: 404
     
 ```
-    {
-        "error": "This title doesn't exist"
-    }
+{
+     "error": "This title doesn't exist"
+}
  ``` 
     
 ### Create hit 
