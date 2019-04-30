@@ -109,7 +109,8 @@ def get_hit(title_url):
 @app.route("/api/v1/hits", methods=["POST"])
 def create_hit():
     """
-    Receives JSON format data containing hit title and artist_id. Validates data.
+    Receives JSON format data containing hit title and artist_id.
+    Validates data.
     Inserts data into db.
 
     :return:
@@ -120,10 +121,10 @@ def create_hit():
 
     if title_and_artist_id_provided(request.json) is None:
         return wrong_data("please provide json data with (title) and (artist_id)")
-    print(title_and_artist_id_provided(request.json))
     if validate_title(request.json) is None:
-        return wrong_data("title must be a non empty string containing only"
-                          " letters ans spaces")
+        return wrong_data(
+            "title must be a non empty string containing only" " letters ans spaces"
+        )
     if artist_id_is_int(request.json) is None:
         return wrong_data("artist_id must be an integer")
 
@@ -145,7 +146,8 @@ def create_hit():
 @app.route("/api/v1/hits/<title_url>", methods=["PUT"])
 def update_hit(title_url):
     """
-        Receives JSON format data which can contains fields like hit title and artist_id.
+        Receives JSON format data which can contains
+        fields like hit title and artist_id.
         Querying db for hit to update.
         Validates data.
         Updating data into db.
@@ -153,6 +155,8 @@ def update_hit(title_url):
         :return:
         flask.Response() object
         """
+    if validate_json() == "Bad JSON":
+        return wrong_data("JSON has an error")
     # get hit filtered by the title_url
     query_hit = Hits.query.filter_by(title_url=title_url)
     # get hit filtered by the title_url
@@ -162,24 +166,24 @@ def update_hit(title_url):
         return not_found("This title doesn't exist")
 
     # validation
-    print(request.json)
     if not request.json:
         return wrong_data("You didn't send anything to update")
-    if 'title' in request.json and validate_title(request.json) is None:
-        return wrong_data("title must be a non empty string containing only"
-                          " letters ans spaces")
-    if "artist_id" in request.json and artist_id_is_int is None:
+    if "title" in request.json and validate_title(request.json) is None:
+        return wrong_data(
+            "title must be a non empty string containing only" " letters ans spaces"
+        )
+    if "artist_id" in request.json and artist_id_is_int(request.json) is None:
         return wrong_data("artist_id must be an integer")
 
     # saving data to db
     hit.title = request.json.get("title", hit.title)
-    hit.artist_id = request.json.get("artistId", hit.artist_id)
+    hit.artist_id = request.json.get("artist_id", hit.artist_id)
     hit.title_url = urlify(hit.title)
     hit.updated_at = get_timestamp()
 
     db.session.commit()
 
-    return hit_schema.jsonify(hit)
+    return hit_schema.jsonify(hit), 201
 
 
 @app.route("/api/v1/hits/<title_url>", methods=["DELETE"])
@@ -231,6 +235,7 @@ def validate_json():
     except json.decoder.JSONDecodeError:
         return "Bad JSON"
 
+
 # check if title and aritst_id in request.json
 def title_and_artist_id_provided(request_json):
     if request_json and "title" in request_json and "artist_id" in request_json:
@@ -239,10 +244,12 @@ def title_and_artist_id_provided(request_json):
 
 # check if title contains only alpha or space characters and is not empty
 def validate_title(request_json):
-    if isinstance(request_json["title"], str) and \
-            any(x.isalpha() for x in request_json['title']) and \
-            all(x.isalpha() or x.isspace() for x in request_json["title"]):
-            return True
+    if (
+        isinstance(request_json["title"], str)
+        and any(x.isalpha() for x in request_json["title"])
+        and all(x.isalpha() or x.isspace() for x in request_json["title"])
+    ):
+        return True
 
 
 # validate artist_id
@@ -253,4 +260,4 @@ def artist_id_is_int(request_json):
 
 # Run server
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)

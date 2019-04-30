@@ -1,0 +1,7 @@
+.coverage
+.idea/
+eska.db
+src/__pycache__/
+src/eska.db
+tests/__pycache__/
+
