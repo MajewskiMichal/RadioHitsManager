@@ -65,11 +65,11 @@ On Success: status: 200
 
 On error: status: 404
     
-    ```
+```
     {
         "error": "This title doesn't exist"
     }
-    ``` 
+ ``` 
     
 ### Create hit 
 
@@ -108,11 +108,11 @@ On Success: status: 201
 
 On error: status: 400
     
-    ```
+```
  {
     "error": "title must be a non empty string containing only letters ans spaces"
  }
-    ``` 
+``` 
 ### Update Hit
 
 **Definition**
@@ -120,6 +120,7 @@ On error: status: 400
 `PUT /api/v1/hits/{title_url}` 
 
 **Request body**
+
 ```
 {
 	"title": "New Title"
