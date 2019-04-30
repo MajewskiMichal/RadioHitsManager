@@ -164,7 +164,7 @@ On Success: status: 202
     "id": 46,
     "title": "Some Title",
     "title_url": "Some-Title"
-    }
+}
 ```
 
 On error: status: 404
@@ -182,16 +182,3 @@ This repo is configured to be unit tested with pytest
 $ pytest --cov-report term-missing --cov=./
 
 ```
-
-    
-    
-
-
-
-
-
-
-
-
-
-
